@@ -24,11 +24,12 @@ export async function checkPdaBalance(mainnetConnection) {
                 const { validatorVoteAddress, lastPdaBalanceNotification, discordSubscriptions, tgSubscriptions } = validator;
                 const validatorInfo = getMainnetList().find(v => v.voteId === validatorVoteAddress);
                 
-                let isDZCheck = await fetch(`https://www.validators.app/api/v1/validators/mainnet/${validatorInfo.validatorId}.json`)
-                isDZCheck = await isDZCheck.json()
-                isDZCheck = isDZCheckData.is_dz;
-                
-                if(!isDZCheck) return;
+                let isDZCheck = await fetch(`https://www.validators.app/api/v1/validators/mainnet/${validatorInfo.validatorId}.json`, {
+                    headers: {
+                        'Token': `${process.env.VALIDATORS_APP_API_KEY}`
+                    }
+                }).then(res => res.json());
+                if(!isDZCheck || !isDZCheck.is_dz) return;
                 
                 const validatorPubKey = new PublicKey(validatorInfo.validatorId);
                 const [pda] = PublicKey.findProgramAddressSync(
@@ -64,6 +65,7 @@ export async function checkPdaBalance(mainnetConnection) {
                 const isLowBalance = balanceInSOL < threshold;
 
                 const currentNotificationState = lastPdaBalanceNotification[userId] || false;
+                console.log(isLowBalance, currentNotificationState, userId, balanceInSOL, threshold);
                 if (isLowBalance !== currentNotificationState) {
                     discordNotifications.push({
                         userId,

@@ -45,7 +45,7 @@ export default {
                     .setContent(`**Previous Threshold:** ${oldThreshold} SOL\n**New Threshold:** ${threshold} SOL\n\nYou will now receive balance alerts when any of your tracked validator's PDA account's balance falls below **${threshold} SOL**.`)
             )
 
-        if (interaction.channel.isDMBased()) {
+        if (!interaction.guild) {
             await interaction.reply({ components: [container], flags: [MessageFlags.IsComponentsV2] });
         } else {
             await interaction.reply({ components: [container], flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2] });
